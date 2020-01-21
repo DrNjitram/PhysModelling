@@ -14,7 +14,7 @@ density = 1.2041; % air at room temperature
 production_s = 1; % production of oxygen (L/s)
 
 % combined value must not exceed 0.215
-vx = 0.515; % air speed in x in m/s
+vx = 0.215; % air speed in x in m/s
 vy = 0.0; % air speed in y in m/s
 
 %% Model Parameters
@@ -68,15 +68,30 @@ t = 1;
 ux = results.XGradients(:, t);
 uy = results.YGradients(:, t);
 pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot');
+title(['Spead of gas at t=', num2str(sim_length * (t - 1)/sim_steps), 's']);
+xlabel("x (m)");
+ylabel('y (m)');
+c = colorbar;
+c.Label.String = 'gas concentration (???)';
 
 subplot(3, 1, 2);
 t = round(sim_steps/2);
 ux = results.XGradients(:, t);
 uy = results.YGradients(:, t);
 pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot');
+title(['Spead of gas at t=', num2str(sim_length * t/sim_steps), 's']);
+xlabel("x (m)");
+ylabel('y (m)');
+c = colorbar;
+c.Label.String = 'gas concentration (???)';
 
 subplot(3, 1, 3);
 t = sim_steps;
 ux = results.XGradients(:, t);
 uy = results.YGradients(:, t);
 pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot');
+title(['Spead of gas at t=', num2str(sim_length * t/sim_steps), 's']);
+xlabel("x (m)");
+ylabel('y (m)');
+c = colorbar;
+c.Label.String = 'gas concentration (???)';
