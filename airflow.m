@@ -8,7 +8,7 @@ format short;
 dynamic_visc = 1.825E-5; % dynamic viscocity of air at 20C
 length_hood = 0.9; % height of entire hood
 size_opening = 0.3; % size of vent
-height = 0.50; % 0.1 - 0.65 height of opening
+height = 0.1; % 0.1 - 0.65 height of opening
 width = 0.695; % depth of hood
 hood_thick = 0.025; % thickness of hood
 blockage_thick = 0.01; % thickness of the blockage
@@ -57,7 +57,7 @@ geometryFromEdges(model, g);
 generateMesh(model, 'Hmax', max_mesh);
 
 %pdeplot(model)
-pdegplot(model, 'EdgeLabels', 'on');
+%pdegplot(model, 'EdgeLabels', 'on');
 
 % Boundary Conditions
 applyBoundaryCondition(model,'neumann','Edge', 1:25,'q',0,'g',0); % static walls
