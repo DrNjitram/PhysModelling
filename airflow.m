@@ -1,38 +1,43 @@
-function results = airflow(height, source_str, showgraph)
+function results = airflow(height, source_str, blockage, showgraph)
     % physical parameters
-    % source http://www.conditionaire.com.au/school-type.html
     dynamic_visc = 1.825E-5; % dynamic viscocity of air at 20C
+     
     length_hood = 0.9; % height of entire hood
-    size_opening = 0.3; % size of vent
-    %height = 0.1; % 0.1 - 0.65 height of opening
     width = 0.695; % depth of hood
-    hood_thick = 0.025; % thickness of hood
+    size_opening = 0.3; % size of vent
+
+    hood_thick = 0.025; % thickness of sash
+
     blockage_thick = 0.01; % thickness of the blockage
-    blockage_offset = [0.638 0.250]; % x y offset of the blockage
+    blockage_offset = blockage; % x y offset of the blockage
 
-    vent_strength = 200; % 200-317 L/s
+
+    width_source = 0.01; % width of source
     source_strength = source_str; % strength, roughly 0.025 for testing
-
+    source_pos = [0.556 0.08]; % x y pos of source
+    
+    
     % Model Parameters
     max_mesh = 0.01;
+    vent_strength = 200; % 200-317 L/s
 
     % create a model container
     model = createpde(1);
 
-    % set geometry (see documentation)
+    % set geometry source http://www.conditionaire.com.au/school-type.html
     fume = [2; 10;... % Fume hood
         0; width; width;       width - 0.057; width - 0.057;      width - size_opening - 0.057;width - size_opening - 0.057; hood_thick;  hood_thick;  0;...
         0; 0;     length_hood; length_hood;   length_hood + 0.05; length_hood+0.05;length_hood;                  length_hood;      height;       height];
 
     source = [3; 4;... % source
-        width * 0.8; width * 0.8 + 0.01; width * 0.8 + 0.01; width * 0.8;...
-        0;           0;                  0.08;               0.08;];
+        source_pos(1) - width_source/2; source_pos(1) + width_source/2; source_pos(1) + width_source/2; source_pos(1) - width_source/2;...
+        0;                              0;                              source_pos(2);                  source_pos(2);];
 
     blocking = [2; 6;... % blockage
         blockage_offset(1); blockage_offset(1) + blockage_thick; blockage_offset(1) + blockage_thick - 0.143; blockage_offset(1) + blockage_thick * 2.5 - 0.343; blockage_offset(1) - 0.321; blockage_offset(1) - 0.143;...
         blockage_offset(2); blockage_offset(2)                 ; blockage_offset(2) + 0.558                 ; blockage_offset(2) + 0.605                       ; blockage_offset(2) + 0.595; blockage_offset(2) + 0.55;];
 
-    outside = [3; 4;...
+	outside = [3; 4;...
         -1; 0; 0; -1;...
         -0.5; -0.5; 1.2; 1.2;];
 
@@ -77,7 +82,7 @@ function results = airflow(height, source_str, showgraph)
         xlabel("x (m)");
         ylabel('y (m)');
         c = colorbar;
-        c.Label.String = 'air concentration (???)';
+        c.Label.String = 'air pressure (P)';
     end
 end
 

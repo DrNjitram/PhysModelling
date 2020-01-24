@@ -9,7 +9,7 @@ length_hood = 0.9; % height of entire hood
 width = 0.695; % depth of hood
 size_opening = 0.3; % size of vent
 
-height = 0.1; % 0.1 - 0.65 height of sash
+height = 0.302; % 0.1 - 0.65 height of sash 0.302 is crossover
 hood_thick = 0.025; % thickness of sash
 
 blockage_thick = 0.01; % thickness of the blockage
@@ -23,13 +23,13 @@ source_pos = [0.556 0.08]; % x y pos of source
 air_flow_speed_correction = 1000; % to ensure air flow speed is within acceptable range, inverse (0.215 m/s)
 
 % natural constants
-diffusion = 1 * 0.000176; % m2/s (oxygen in air)
+diffusion = 10 * 0.000176; % m2/s (oxygen in air)
 density = 1.2041; % air at room temperature
 
 
 %% Model Parameters
 max_mesh = 0.05; % maximum mesh size ( scaled by x/length)0.01 for good results, but slow, 0.05 for fast testing
-sim_length = 50; % duration (s)
+sim_length = 100; % duration (s)
 sim_steps = 100; % time steps
 trip_gas = 0.001; % amount of gas (m3) at entrance before gas has escaped
 
@@ -67,7 +67,7 @@ generateMesh(model, 'Hmax', max_mesh);
 
 
 %% Retrieve flow model
-flowresults = airflow(height, speed_s, true); % retrieve flow model with hood at a certain height and show the results in a graph
+flowresults = airflow(height, speed_s, blockage_offset, false); % retrieve flow model with hood at a certain height and show the results in a graph
 
 
 %% Boundary Conditions
@@ -118,27 +118,27 @@ end
 
 %% show results
 figure;
-subplot(3, 1, 1);
+subplot(1, 3, 1);
 t = 1;
-pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot');
+pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot', 'Levels', 20);
 title(['Spread of gas at t=', num2str(sim_length * (t - 1)/sim_steps), 's']);
 xlabel("x (m)");
 ylabel('y (m)');
 c = colorbar;
 c.Label.String = 'gas concentration (???)';
 
-subplot(3, 1, 2);
+subplot(1, 3, 2);
 t = round(sim_steps/2);
-pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot');
+pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot', 'Levels', 20);
 title(['Spread of gas at t=', num2str(sim_length * t/sim_steps), 's']);
 xlabel("x (m)");
 ylabel('y (m)');
 c = colorbar;
 c.Label.String = 'gas concentration (???)';
 
-subplot(3, 1, 3);
+subplot(1, 3, 3);
 t = sim_steps;
-pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot');
+pdeplot(model,'XYData',results.NodalSolution(:, t), 'Contour', 'on','ColorMap','hot', 'Levels', 20);
 title(['Spread of gas at t=', num2str(sim_length * t/sim_steps), 's']);
 xlabel("x (m)");
 ylabel('y (m)');
@@ -147,7 +147,7 @@ c.Label.String = 'gas concentration (???)';
 
 %% show results at the exit time
 figure;
-pdeplot(model,'XYData',results.NodalSolution(:, exit_time), 'Contour', 'on','ColorMap','hot');
+pdeplot(model,'XYData',results.NodalSolution(:, exit_time), 'Contour', 'on','ColorMap','hot', 'Levels', 20);
 title(['Spread of gas at t=', num2str(sim_length * exit_time/sim_steps), 's']);
 xlabel("x (m)");
 ylabel('y (m)');
