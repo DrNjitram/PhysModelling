@@ -17,10 +17,8 @@ blockage_offset = [0.638 0.250]; % x y offset of the blockage
 
 
 width_source = 0.01; % width of source
-speed_s = 0.1; % speed of oxygen (m/s)
+speed_s = 5; % speed of oxygen (L/s)
 source_pos = [0.556 0.08]; % x y pos of source
-
-air_flow_speed_correction = 1000; % to ensure air flow speed is within acceptable range, inverse (0.215 m/s)
 
 % natural constants
 diffusion = 10 * 0.000176; % m2/s (oxygen in air)
@@ -72,7 +70,7 @@ flowresults = airflow(height, speed_s, blockage_offset, false); % retrieve flow 
 
 %% Boundary Conditions
 source_strength = speed_s / width_source; 
-edge_cond = @(location, state) sum(evaluateGradient(flowresults, [location.x; location.y])'/air_flow_speed_correction);
+edge_cond = @(location, state) sum(evaluateGradient(flowresults, [location.x; location.y]));
 
 applyBoundaryCondition(model,'neumann','Edge', 1:20 ,'q', 0,'g', 0); % static walls
 applyBoundaryCondition(model,'neumann','Edge', [1 5] ,'q', edge_cond,'g', 0); % 'open' walls
@@ -80,7 +78,7 @@ applyBoundaryCondition(model,'dirichlet','Edge', 7, 'h', 1, 'r', source_strength
 
 
 %% set coefficients in PDE
-f = @(location, state) sum(evaluateGradient(flowresults, [location.x; location.y])'/air_flow_speed_correction .* [state.ux; state.uy] * -1); % implement spread of gas based on flow model
+f = @(location, state) sum(evaluateGradient(flowresults, [location.x; location.y])'.* [state.ux; state.uy] * -1); % implement spread of gas based on flow model
 
 specifyCoefficients(model, 'm', 0, 'd', density, 'c', diffusion, 'a', 0, 'f', f); % Coefficients for model
 

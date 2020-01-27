@@ -13,13 +13,14 @@ function results = airflow(height, source_str, blockage, showgraph)
 
 
     width_source = 0.01; % width of source
-    source_strength = source_str; % strength, roughly 0.025 for testing
+    source_strength =(source_str/1000)/(pi * (width_source/2)^2); % strength, roughly 0.025 for testing
     source_pos = [0.556 0.08]; % x y pos of source
     
     
     % Model Parameters
     max_mesh = 0.01;
     vent_strength = 200; % 200-317 L/s
+    vent_strength = (vent_strength/1000)/(pi * (size_opening/2)^2); 
 
     % create a model container
     model = createpde(1);
@@ -62,9 +63,9 @@ function results = airflow(height, source_str, blockage, showgraph)
 
     % Boundary Conditions
     applyBoundaryCondition(model,'neumann','Edge', 1:25,'q',0,'g',0); % static walls
-    applyBoundaryCondition(model,'dirichlet','Edge', 1, 'h', 1, 'r', vent_strength); % vent
-    applyBoundaryCondition(model,'dirichlet','Edge', 6, 'h', 1, 'r', source_strength); % source
-    applyBoundaryCondition(model,'dirichlet','Edge', [15 14], 'h', 1, 'r', 1); % opening
+    applyBoundaryCondition(model,'neumann','Edge', 1,'q',vent_strength,'g',1); % vent
+    applyBoundaryCondition(model,'neumann','Edge', 6,'q',source_strength,'g',1); % source
+    applyBoundaryCondition(model,'neumann','Edge', [15 14],'q',vent_strength - source_strength,'g',1); % opening
 
     % Specify model parameters
     specifyCoefficients(model,'m',0,'d', 0,'c', -dynamic_visc ,'a',0,'f',0);
