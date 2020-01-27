@@ -9,14 +9,14 @@ length_hood = 0.9; % height of entire hood
 width = 0.695; % depth of hood
 size_opening = 0.3; % size of vent
 
-height = 0.302; % 0.1 - 0.65 height of sash 0.302 is crossover
+height = 0.65; % 0.1 - 0.65 height of sash 0.302 is crossover
 hood_thick = 0.025; % thickness of sash
 
 blockage_thick = 0.01; % thickness of the blockage
 blockage_offset = [0.638 0.250]; % x y offset of the blockage
 
-width_source = 0.01; % width of source
-speed_s = 5; % speed of oxygen (L/s)
+width_source = 0.00635; % width of source
+speed_s = 10; % speed of oxygen (L/s)
 source_pos = [0.556 0.08]; % x y pos of source
 
 % natural constants
@@ -68,12 +68,12 @@ flowresults = airflow(height, speed_s, blockage_offset, false); % retrieve flow 
 
 
 %% Boundary Conditions
-source_strength = speed_s / width_source; 
+source_strength = (speed_s/1000)/(pi * (width_source/2)^2);
 edge_cond = @(location, state) sum(evaluateGradient(flowresults, [location.x; location.y]));
 
 applyBoundaryCondition(model,'neumann','Edge', 1:20 ,'q', 0,'g', 0); % static walls
 applyBoundaryCondition(model,'neumann','Edge', [1 5] ,'q', edge_cond,'g', 0); % 'open' walls
-applyBoundaryCondition(model,'dirichlet','Edge', 7, 'h', 1, 'r', source_strength); % source edge
+applyBoundaryCondition(model,'neumann','Edge', 7,'g', source_strength,'q',1); % source
 
 
 %% set coefficients in PDE

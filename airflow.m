@@ -1,34 +1,36 @@
 function results = airflow(height, source_str, blockage, showgraph)
+      
     % physical parameters
-    dynamic_visc = 1.825E-5; % dynamic viscocity of air at 20C
-     
     length_hood = 0.9; % height of entire hood
     width = 0.695; % depth of hood
-    size_opening = 0.3; % size of vent
+    
+    size_vent = 0.3; % size of vent
+    height_vent = 0.025; %height of vent
 
     hood_thick = 0.025; % thickness of sash
 
     blockage_thick = 0.01; % thickness of the blockage
     blockage_offset = blockage; % x y offset of the blockage
 
-
-    width_source = 0.01; % width of source
-    source_strength =(source_str/1000)/(pi * (width_source/2)^2); % strength, roughly 0.025 for testing
+    width_source = 0.00635; % width of source
     source_pos = [0.556 0.08]; % x y pos of source
+    
+    % natural constants
+    dynamic_visc = 1.825E-5; % dynamic viscocity of air at 20C
     
     
     % Model Parameters
     max_mesh = 0.01;
     vent_strength = 200; % 200-317 L/s
-    vent_strength = (vent_strength/1000)/(pi * (size_opening/2)^2); 
+    vent_strength = (vent_strength/1000)/(pi * (size_vent/2)^2); 
 
     % create a model container
     model = createpde(1);
 
     % set geometry source http://www.conditionaire.com.au/school-type.html
     fume = [2; 10;... % Fume hood
-        0; width; width;       width - 0.057; width - 0.057;      width - size_opening - 0.057;width - size_opening - 0.057; hood_thick;  hood_thick;  0;...
-        0; 0;     length_hood; length_hood;   length_hood + 0.05; length_hood+0.05;length_hood;                  length_hood;      height;       height];
+        0; width; width;       width - 0.057; width - 0.057;      width - size_vent - 0.057;width - size_vent - 0.057; hood_thick;  hood_thick;  0;...
+        0; 0;     length_hood; length_hood;   length_hood + height_vent; length_hood+height_vent;length_hood;                  length_hood;      height;       height];
 
     source = [3; 4;... % source
         source_pos(1) - width_source/2; source_pos(1) + width_source/2; source_pos(1) + width_source/2; source_pos(1) - width_source/2;...
@@ -62,9 +64,11 @@ function results = airflow(height, source_str, blockage, showgraph)
     %pdegplot(model, 'EdgeLabels', 'on');
 
     % Boundary Conditions
+    source_strength =(source_str/1000)/(pi * (width_source/2)^2); % strength, roughly 0.025 for testing
+    
     applyBoundaryCondition(model,'neumann','Edge', 1:25,'q',0,'g',0); % static walls
-    applyBoundaryCondition(model,'neumann','Edge', 1,'q',vent_strength,'g',1); % vent
-    applyBoundaryCondition(model,'neumann','Edge', 6,'q',source_strength,'g',1); % source
+    applyBoundaryCondition(model,'neumann','Edge', 1,'q', vent_strength,'g',1); % vent
+    applyBoundaryCondition(model,'neumann','Edge', 6,'q', source_strength,'g',1); % source
     applyBoundaryCondition(model,'neumann','Edge', [15 14],'q',vent_strength - source_strength,'g',1); % opening
 
     % Specify model parameters
@@ -83,7 +87,7 @@ function results = airflow(height, source_str, blockage, showgraph)
         xlabel("x (m)");
         ylabel('y (m)');
         c = colorbar;
-        c.Label.String = 'air pressure (P)';
+        c.Label.String = 'air pressure (N/m2)';
     end
 end
 
