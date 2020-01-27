@@ -15,7 +15,6 @@ hood_thick = 0.025; % thickness of sash
 blockage_thick = 0.01; % thickness of the blockage
 blockage_offset = [0.638 0.250]; % x y offset of the blockage
 
-
 width_source = 0.01; % width of source
 speed_s = 5; % speed of oxygen (L/s)
 source_pos = [0.556 0.08]; % x y pos of source
@@ -27,7 +26,7 @@ density = 1.2041; % air at room temperature
 
 %% Model Parameters
 max_mesh = 0.05; % maximum mesh size ( scaled by x/length)0.01 for good results, but slow, 0.05 for fast testing
-sim_length = 100; % duration (s)
+sim_length = 10; % duration (s)
 sim_steps = 100; % time steps
 trip_gas = 0.001; % amount of gas (m3) at entrance before gas has escaped
 
