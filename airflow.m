@@ -1,5 +1,12 @@
-function results = airflow(height, source_str, blockage, showgraph)
-      
+function results = airflow(height, source_str, vent_str, blockage, showgraph)
+    if nargin < 1
+        height = 0.65;
+        source_str = 0.01;
+        vent_str = 0.2;
+        blockage = [0.638 0.250];
+        showgraph = true;
+    end
+    
     % physical parameters
     length_hood = 0.9; % height of entire hood
     width = 0.695; % depth of hood
@@ -18,11 +25,10 @@ function results = airflow(height, source_str, blockage, showgraph)
     % natural constants
     dynamic_visc = 1.825E-5; % dynamic viscocity of air at 20C
     
-    
     % Model Parameters
     max_mesh = 0.01;
-    vent_strength = 200; % 200-317 L/s
-    vent_strength = (vent_strength/1000)/(pi * (size_vent/2)^2); 
+    vent_strength = vent_str; % 0.200-0.317 m3/s
+
 
     % create a model container
     model = createpde(1);
@@ -63,13 +69,11 @@ function results = airflow(height, source_str, blockage, showgraph)
     %pdeplot(model)
     %pdegplot(model, 'EdgeLabels', 'on');
 
-    % Boundary Conditions
-    source_strength =(source_str/1000)/(pi * (width_source/2)^2); % strength, roughly 0.025 for testing
-    
+    % Boundary Conditions   
     applyBoundaryCondition(model,'neumann','Edge', 1:25,'q',0,'g',0); % static walls
-    applyBoundaryCondition(model,'neumann','Edge', 1,'q', vent_strength,'g',1); % vent
-    applyBoundaryCondition(model,'neumann','Edge', 6,'q', source_strength,'g',1); % source
-    applyBoundaryCondition(model,'neumann','Edge', [15 14],'q',vent_strength - source_strength,'g',1); % opening
+    applyBoundaryCondition(model,'dirichlet','Edge', 1,'r', vent_strength,'h',1); % vent
+    applyBoundaryCondition(model,'dirichlet','Edge', 6,'r', -source_str,'h',1); % source
+    applyBoundaryCondition(model,'dirichlet','Edge', [15 14],'r',-(vent_strength - source_str)/2,'h',1); % opening
 
     % Specify model parameters
     specifyCoefficients(model,'m',0,'d', 0,'c', -dynamic_visc ,'a',0,'f',0);
@@ -86,8 +90,9 @@ function results = airflow(height, source_str, blockage, showgraph)
         pdeplot(model,'XYData',results.NodalSolution, 'FlowData', [ux uy], 'Contour', 'on');
         xlabel("x (m)");
         ylabel('y (m)');
-        c = colorbar;
-        c.Label.String = 'air pressure (N/m2)';
+        colorbar('off');
+        
+        %c.Label.String = 'air pressure (N/m2)';
     end
 end
 

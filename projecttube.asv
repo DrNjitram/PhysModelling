@@ -1,9 +1,8 @@
-function exit_time = projecttube(h, src, vent, showgr)
+function volume = projecttube(h, src, showgr)
     if nargin < 1
-        h = 0.18;
+        h = 0.65;
         showgr = true;
         src = 0.05;
-        vent = 0.200;
     end
 
     %% physical parameters
@@ -12,7 +11,7 @@ function exit_time = projecttube(h, src, vent, showgr)
 
     size_vent = 0.3; % size of vent
     height_vent = 0.025; %height of vent
-    vent_str = vent; % 0.200-0.317 m3/s
+    vent_str = 0.200; % 0.200-0.317 m3/s
 
     height = h; % 0.1 - 0.65 height of sash 0.302 is crossover
     hood_thick = 0.025; % thickness of sash
@@ -25,15 +24,15 @@ function exit_time = projecttube(h, src, vent, showgr)
     source_pos = [0.556 0.08]; % x y pos of source
 
     % natural constants
-    diffusion = 100 * 0.000176; % m2/s (oxygen in air)
+    diffusion = 10 * 0.000176; % m2/s (oxygen in air)
     density = 1.2041; % air at room temperature
 
 
     %% Model Parameters
     max_mesh = 0.05; % maximum mesh size ( scaled by x/length)0.01 for good results, but slow, 0.05 for fast testing
-    sim_length = 10; % duration (s)
-    sim_steps = sim_length*100; % time steps
-    trip_gas = 0.0002; % amount of gas (m3) at entrance before gas has escaped
+    sim_length = 0.1; % duration (s)
+    sim_steps = 100; % time steps
+    trip_gas = 0.001; % amount of gas (m3) at entrance before gas has escaped
 
 
     %% create a model container
@@ -69,7 +68,7 @@ function exit_time = projecttube(h, src, vent, showgr)
 
 
     %% Retrieve flow model
-    flowresults = airflow(height, speed_s, vent_str, blockage_offset, showgr); % retrieve flow model with hood at a certain height and show the results in a graph
+    flowresults = airflow(height, speed_s, vent_str, blockage_offset, true); % retrieve flow model with hood at a certain height and show the results in a graph
 
 
     %% Boundary Conditions
@@ -107,11 +106,11 @@ function exit_time = projecttube(h, src, vent, showgr)
         end
     end
 
-    if exit_time ~= 0 && showgr % the gas escapes
+    if exit_time ~= 0 % the gas escapes
         figure;
         plot(y, entrance_values);
         title(['Gas exited at t=', num2str(sim_length * exit_time/sim_steps), 's']);
-    elseif showgr % the gas never escapes
+    else % the gas never escapes
         disp(['The gas never escapes within the given time range of ', num2str(sim_length), 's']);
         exit_time = sim_steps;
     end
